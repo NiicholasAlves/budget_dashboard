@@ -1,0 +1,54 @@
+<h1>Budget Dashboard</h1>
+
+<p>
+  Viewing month: <strong><%= @month.strftime("%B %Y") %></strong>
+</p>
+
+<h2>Overall</h2>
+<ul>
+  <li>Total budget: <strong><%= number_to_currency(@summary[:total_limit] || 0, unit: "€") %></strong></li>
+  <li>Total spent: <strong><%= number_to_currency(@summary[:total_spent] || 0, unit: "€") %></strong></li>
+  <li>Remaining: <strong><%= number_to_currency(@summary[:remaining] || 0, unit: "€") %></strong></li>
+  <li>Used: <strong><%= @summary[:percent] || 0 %>%</strong></li>
+</ul>
+
+<h2>By category</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Limit</th>
+      <th>Spent</th>
+      <th>Remaining</th>
+      <th>Used</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @status_by_category.each do |row| %>
+      <tr>
+        <td><%= row[:category].name %></td>
+        <td><%= number_to_currency(row[:limit] || 0, unit: "€") %></td>
+        <td><%= number_to_currency(row[:spent] || 0, unit: "€") %></td>
+        <td><%= number_to_currency(row[:remaining] || 0, unit: "€") %></td>
+        <td><%= "#{row[:percent]}%" %></td>
+        <td>
+          <% case row[:status] %>
+          <% when :over %>
+            <span style="color: red">Over</span>
+          <% when :warning %>
+            <span style="color: orange">Warning</span>
+          <% else %>
+            <span style="color: green">OK</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <%= link_to "Expenses", expenses_path %> |
+  <%= link_to "Budgets", budgets_path %> |
+  <%= link_to "Categories", categories_path %>
+</p>
