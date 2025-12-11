@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :budgets
+  resources :expenses
   resources :categories
   get "home/index"
   devise_for :users

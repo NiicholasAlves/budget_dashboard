@@ -1,0 +1,31 @@
+<%= form_with(model: budget) do |form| %>
+  <% if budget.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(budget.errors.count, "error") %> prohibited this budget from being saved:</h2>
+      <ul>
+        <% budget.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :month, style: "display: block" %>
+    <%= form.date_field :month, value: (budget.month || Date.today.beginning_of_month) %>
+  </div>
+
+  <div>
+    <%= form.label :limit_amount, "Limit (€)", style: "display: block" %>
+    <%= form.number_field :limit_amount, step: "0.01" %>
+  </div>
+
+  <div>
+    <%= form.label :category_id, "Category", style: "display: block" %>
+    <%= form.collection_select :category_id, current_user.categories, :id, :name, prompt: "Select category" %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
