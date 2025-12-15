@@ -1,54 +1,194 @@
-<h1>Budget Dashboard</h1>
+<div class="container mt-4">
+  <h1 class="mb-3">Budget Dashboard</h1>
 
-<p>
-  Viewing month: <strong><%= @month.strftime("%B %Y") %></strong>
-</p>
+  <!-- MONTH SELECTOR -->
+  <form method="get" class="mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label">Select month</label>
+        <input
+          type="month"
+          name="month"
+          value="<%= @month.strftime('%Y-%m') %>"
+          class="form-control"
+        >
+      </div>
 
-<h2>Overall</h2>
-<ul>
-  <li>Total budget: <strong><%= number_to_currency(@summary[:total_limit] || 0, unit: "€") %></strong></li>
-  <li>Total spent: <strong><%= number_to_currency(@summary[:total_spent] || 0, unit: "€") %></strong></li>
-  <li>Remaining: <strong><%= number_to_currency(@summary[:remaining] || 0, unit: "€") %></strong></li>
-  <li>Used: <strong><%= @summary[:percent] || 0 %>%</strong></li>
-</ul>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">
+          View
+        </button>
+      </div>
+    </div>
+  </form>
 
-<h2>By category</h2>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Limit</th>
-      <th>Spent</th>
-      <th>Remaining</th>
-      <th>Used</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @status_by_category.each do |row| %>
-      <tr>
-        <td><%= row[:category].name %></td>
-        <td><%= number_to_currency(row[:limit] || 0, unit: "€") %></td>
-        <td><%= number_to_currency(row[:spent] || 0, unit: "€") %></td>
-        <td><%= number_to_currency(row[:remaining] || 0, unit: "€") %></td>
-        <td><%= "#{row[:percent]}%" %></td>
-        <td>
-          <% case row[:status] %>
-          <% when :over %>
-            <span style="color: red">Over</span>
-          <% when :warning %>
-            <span style="color: orange">Warning</span>
-          <% else %>
-            <span style="color: green">OK</span>
+  <!-- CATEGORY SUMMARY (TOP) -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">By Category</h5>
+
+      <table class="table table-sm table-striped mt-3">
+        <thead class="table-light">
+          <tr>
+            <th>Category</th>
+            <th>Limit</th>
+            <th>Spent</th>
+            <th>Remaining</th>
+            <th>Used</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @status_by_category.each do |row| %>
+            <tr>
+              <td><%= row[:category].name %></td>
+              <td><%= number_to_currency(row[:limit], unit: "€") %></td>
+              <td><%= number_to_currency(row[:spent], unit: "€") %></td>
+              <td><%= number_to_currency(row[:remaining], unit: "€") %></td>
+              <td><%= row[:percent] %>%</td>
+              <td>
+                <% case row[:status] %>
+                <% when :over %>
+                  <span class="badge bg-danger">Over</span>
+                <% when :warning %>
+                  <span class="badge bg-warning text-dark">Warning</span>
+                <% else %>
+                  <span class="badge bg-success">OK</span>
+                <% end %>
+              </td>
+            </tr>
           <% end %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-<p>
-  <%= link_to "Expenses", expenses_path %> |
-  <%= link_to "Budgets", budgets_path %> |
-  <%= link_to "Categories", categories_path %>
-</p>
+  <!-- SUMMARY + PIE -->
+  <div class="row mb-4">
+    <!-- OVERALL SUMMARY -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Overall</h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total budget</span>
+              <strong><%= number_to_currency(@summary[:total_limit], unit: "€") %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total spent</span>
+              <strong><%= number_to_currency(@summary[:total_spent], unit: "€") %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Remaining</span>
+              <strong><%= number_to_currency(@summary[:remaining], unit: "€") %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Used</span>
+              <strong><%= @summary[:percent] %>%</strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIE CHART -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Spending by Category</h5>
+
+          <% if @pie_values.sum > 0 %>
+            <canvas id="spendingPieChart"></canvas>
+          <% else %>
+            <p class="text-muted">No spending data for this month.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAR CHART -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Budget vs Spent</h5>
+
+      <% if @bar_budget_values.sum > 0 %>
+        <canvas id="budgetBarChart"></canvas>
+      <% else %>
+        <p class="text-muted">No budget data for this month.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- CHART.JS CONFIG -->
+<script>
+  document.addEventListener("turbo:load", function () {
+
+    // PIE CHART
+    const pieCtx = document.getElementById("spendingPieChart");
+    if (pieCtx) {
+      new Chart(pieCtx, {
+        type: "pie",
+        data: {
+          labels: <%= raw @pie_labels.to_json %>,
+          datasets: [{
+            data: <%= raw @pie_values.to_json %>,
+            backgroundColor: [
+              "#0d6efd",
+              "#198754",
+              "#ffc107",
+              "#dc3545",
+              "#6f42c1",
+              "#20c997"
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          aspectRatio: 1.6,
+          plugins: {
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      });
+    }
+
+    // BAR CHART
+    const barCtx = document.getElementById("budgetBarChart");
+    if (barCtx) {
+      new Chart(barCtx, {
+        type: "bar",
+        data: {
+          labels: <%= raw @bar_labels.to_json %>,
+          datasets: [
+            {
+              label: "Budget",
+              data: <%= raw @bar_budget_values.to_json %>,
+              backgroundColor: "#0d6efd"
+            },
+            {
+              label: "Spent",
+              data: <%= raw @bar_spent_values.to_json %>,
+              backgroundColor: "#dc3545"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          aspectRatio: 3,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+  });
+</script>

@@ -1,16 +1,52 @@
-<p style="color: green"><%= notice %></p>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Expenses</h1>
+    <%= link_to "New Expense", new_expense_path, class: "btn btn-primary" %>
+  </div>
 
-<% content_for :title, "Expenses" %>
-
-<h1>Expenses</h1>
-
-<div id="expenses">
-  <% @expenses.each do |expense| %>
-    <%= render expense %>
-    <p>
-      <%= link_to "Show this expense", expense %>
-    </p>
+  <% if @expenses.any? %>
+    <div class="card">
+      <div class="card-body">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th class="text-end">Amount</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @expenses.each do |expense| %>
+              <tr>
+                <td><%= expense.spent_on.strftime("%d %b %Y") %></td>
+                <td>
+                  <span class="badge bg-secondary">
+                    <%= expense.category.name %>
+                  </span>
+                </td>
+                <td><%= expense.description.presence || "-" %></td>
+                <td class="text-end">
+                  <strong><%= number_to_currency(expense.amount, unit: "€") %></strong>
+                </td>
+                <td class="text-end">
+                  <%= link_to "Edit", edit_expense_path(expense),
+                        class: "btn btn-sm btn-outline-primary" %>
+                  <%= link_to "Delete", expense,
+                        method: :delete,
+                        data: { confirm: "Are you sure?" },
+                        class: "btn btn-sm btn-outline-danger ms-1" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="alert alert-info">
+      No expenses yet. Click <strong>New Expense</strong> to add your first one.
+    </div>
   <% end %>
 </div>
-
-<%= link_to "New expense", new_expense_path %>

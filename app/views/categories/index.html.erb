@@ -1,16 +1,44 @@
-<p style="color: green"><%= notice %></p>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Categories</h1>
+    <%= link_to "New Category", new_category_path, class: "btn btn-primary" %>
+  </div>
 
-<% content_for :title, "Categories" %>
-
-<h1>Categories</h1>
-
-<div id="categories">
-  <% @categories.each do |category| %>
-    <%= render category %>
-    <p>
-      <%= link_to "Show this category", category %>
-    </p>
+  <% if @categories.any? %>
+    <div class="card">
+      <div class="card-body">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @categories.each do |category| %>
+              <tr>
+                <td>
+                  <span class="badge bg-secondary fs-6">
+                    <%= category.name %>
+                  </span>
+                </td>
+                <td class="text-end">
+                  <%= link_to "Edit", edit_category_path(category),
+                        class: "btn btn-sm btn-outline-primary" %>
+                  <%= link_to "Delete", category,
+                        method: :delete,
+                        data: { confirm: "Deleting this category may affect budgets and expenses. Continue?" },
+                        class: "btn btn-sm btn-outline-danger ms-1" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="alert alert-info">
+      No categories yet. Click <strong>New Category</strong> to add one.
+    </div>
   <% end %>
 </div>
-
-<%= link_to "New category", new_category_path %>

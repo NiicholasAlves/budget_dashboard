@@ -1,27 +1,32 @@
-<%= form_with(model: category) do |form| %>
-  <% if category.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(category.errors.count, "error") %> prohibited this category from being saved:</h2>
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title mb-3">
+        <%= category.new_record? ? "New Category" : "Edit Category" %>
+      </h4>
 
-      <ul>
-        <% category.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+      <%= form_with(model: category) do |form| %>
+        <% if category.errors.any? %>
+          <div class="alert alert-danger">
+            <h5><%= pluralize(category.errors.count, "error") %> prevented this category from being saved:</h5>
+            <ul>
+              <% category.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
         <% end %>
-      </ul>
+
+        <div class="mb-3">
+          <%= form.label :name, class: "form-label" %>
+          <%= form.text_field :name, class: "form-control", placeholder: "e.g. Groceries, Rent, Transport" %>
+        </div>
+
+        <div class="mt-4">
+          <%= form.submit class: "btn btn-primary" %>
+          <%= link_to "Back", categories_path, class: "btn btn-secondary ms-2" %>
+        </div>
+      <% end %>
     </div>
-  <% end %>
-
-  <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
   </div>
-
-  <div>
-    <%= form.label :user_id, style: "display: block" %>
-    <%= form.text_field :user_id %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>
