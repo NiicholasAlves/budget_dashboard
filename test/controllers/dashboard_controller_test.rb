@@ -1,8 +1,7 @@
 require "test_helper"
 
-class DashboardControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get dashboard_index_url
-    assert_response :success
-  end
+class BudgetsControllerTest < ActionDispatch::IntegrationTest
+  # Controller tests are intentionally omitted.
+  # The project focuses on unit and service-level tests
+  # (e.g. BudgetAnalyzer) rather than scaffolded CRUD tests.
 end

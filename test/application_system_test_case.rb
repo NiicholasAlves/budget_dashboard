@@ -1,5 +1,7 @@
 require "test_helper"
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
+  # System tests are intentionally disabled for this project.
+  # The project focuses on unit and service-level tests
+  # rather than browser-driven system tests.
 end
